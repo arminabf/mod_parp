@@ -800,6 +800,7 @@ static apr_status_t parp_parser_multipart(parp_t *self,
 
         if (body_block_structure != NULL) {
           body_block_structure->key = key;
+          body_block_structure->raw_len = b->raw_data_len;
           body_block_structure->key_addr = b->raw_data;
           body_block_structure->value_addr = b->data;
           body_block_structure->rw_array_index = self->rw_params->nelts - 1;
@@ -1397,6 +1398,7 @@ AP_DECLARE (apr_status_t) parp_forward_filter(ap_filter_t * f,
                       if ((rv = apr_brigade_write(bb, NULL, NULL, self->raw_body_data, mp->raw_len)) != APR_SUCCESS) { return rv;}
                       self->raw_body_data = &self->raw_body_data[mp->raw_len];
                       self->raw_body_data_len -= mp->raw_len;
+                      freebytes -= mp->raw_len;
                       mp->written_to_brigade = 1;
                     } else {
                       self->tmp_buffer = self->raw_body_data;
