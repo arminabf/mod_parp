@@ -1,0 +1,48 @@
+
+CLIENT
+
+_REQ localhost 16100
+__POST /test/post/qsfilter2.do?server=server1 HTTP/1.1
+__Host: localhost
+__Connection: keep-alive
+__Content-Type: application/gaga
+__Content-Length: AUTO
+__User-Agent: htt 01
+__
+__Foo bar bla fasel
+_EXPECT . "500 Internal"
+_WAIT
+_CLOSE
+
+_EXEC ./ctl.sh stop -D anybody 1>/dev/null
+_EXEC ./ctl.sh start -D anybody 1>/dev/null
+
+_REQ localhost 16100
+__POST /test/post/qsfilter2.do?server=server1 HTTP/1.1
+__Host: localhost
+__Connection: keep-alive
+__Content-Type: application/gaga
+__Content-Length: AUTO
+__User-Agent: htt 02
+__
+__1Foo bar bla fasel blub blub
+__2Foo bar bla fasel blub blub
+__3Foo bar bla fasel blub blub
+__4Foo bar bla fasel blub blub
+__5Foo bar bla fasel blub blub
+__6Foo bar bla fasel blub blub
+__7Foo bar bla fasel blub blub
+__8Foo bar bla fasel blub blub
+__9Foo bar bla fasel blub blub
+_EXPECT . "200 OK"
+_EXPECT . "body: 1Foo bar bla fasel blub blub"
+_EXPECT . "[2-9]Foo bar bla fasel blub blub"
+_EXPECT . "9Foo bar bla fasel blub blub"
+_WAIT
+_CLOSE
+
+END
+
+BLOCK FINALLY
+_EXEC ./ctl.sh restart 1>/dev/null 2>/dev/null
+END

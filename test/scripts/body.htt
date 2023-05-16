@@ -1,0 +1,78 @@
+
+CLIENT
+_REQ localhost 16100
+__POST /test/post/qsfilter2.do?server=server1 HTTP/1.1
+__Host: localhost
+__Connection: keep-alive
+__Content-Type: text/foo
+__Content-Length: AUTO
+__
+__1Foo bar bla fasel blub blub
+__2Foo bar bla fasel blub blub
+__3Foo bar bla fasel blub blub
+__4Foo bar bla fasel blub blub
+__5Foo bar bla fasel blub blub
+__6Foo bar bla fasel blub blub
+__7Foo bar bla fasel blub blub
+__8Foo bar bla fasel blub blub
+__9Foo bar bla fasel blub blub
+_EXPECT . "200 OK"
+_EXPECT . "recvd: server = server1"
+_EXPECT . "of: server = server1"
+_EXPECT . "body: 1Foo bar bla fasel"
+_EXPECT . "[2-9]Foo bar bla fasel"
+_EXPECT . "9Foo bar bla fasel blub blub"
+_WAIT
+_CLOSE
+
+_SET BLUB=blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub blub
+
+_REQ localhost 16100
+__POST /test/post/qsfilter2.do?server=server1 HTTP/1.1
+__Host: localhost
+__Connection: keep-alive
+__Content-Type: text/foo
+__Transfer-Encoding: chunked
+_FLUSH
+__1Foo bar bla fasel blub blub
+__2Foo bar bla fasel blub blub
+__3Foo bar bla fasel blub blub
+__4Foo bar bla fasel blub blub
+_CHUNK
+_FLUSH
+__XFoo bar bla fasel blub blub $BLUB $BLUB $BLUB $BLUB $BLUB
+__XFoo bar bla fasel blub blub $BLUB $BLUB $BLUB $BLUB $BLUB
+__XFoo bar bla fasel blub blub $BLUB $BLUB $BLUB $BLUB $BLUB
+_CHUNK
+_FLUSH
+__XFoo bar bla fasel blub blub $BLUB $BLUB $BLUB $BLUB $BLUB
+__XFoo bar bla fasel blub blub $BLUB $BLUB $BLUB $BLUB $BLUB
+__XFoo bar bla fasel blub blub $BLUB $BLUB $BLUB $BLUB $BLUB
+_CHUNK
+_FLUSH
+__XFoo bar bla fasel blub blub $BLUB $BLUB $BLUB $BLUB $BLUB
+__XFoo bar bla fasel blub blub $BLUB $BLUB $BLUB $BLUB $BLUB
+__XFoo bar bla fasel blub blub $BLUB $BLUB $BLUB $BLUB $BLUB
+_CHUNK
+_FLUSH
+__XFoo bar bla fasel blub blub $BLUB $BLUB $BLUB $BLUB $BLUB
+__XFoo bar bla fasel blub blub $BLUB $BLUB $BLUB $BLUB $BLUB
+__XFoo bar bla fasel blub blub $BLUB $BLUB $BLUB $BLUB $BLUB
+_CHUNK
+_FLUSH
+__6Foo bar bla fasel blub blub
+__7Foo bar bla fasel blub blub
+__8Foo bar bla fasel blub blub
+__9Foo bar bla fasel blub blub
+_CHUNK
+__
+__0
+__
+_EXPECT . "200 OK"
+_EXPECT . "recvd: server = server1"
+_EXPECT . "of: server = server1"
+_EXPECT . "body: 1Foo bar bla fasel"
+_EXPECT . "[2-9]Foo bar bla fasel"
+_WAIT
+
+END

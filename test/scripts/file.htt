@@ -1,0 +1,50 @@
+
+CLIENT
+_REQ localhost 16100
+__POST /test/post/qsfilter2.do?server=server1 HTTP/1.1
+__Host: localhost
+__Connection: keep-alive
+__Content-Type: multipart/form-data; boundary=---------------------------15922602401425828601184594646
+__Content-Length: AUTO
+__
+__-----------------------------15922602401425828601184594646
+__Content-Disposition: form-data; name="access_log"; filename="access_log"
+__Content-Type: application/octet-stream
+__
+__192.168.32.132 - - [19/Jan/2008:19:50:14 +0100] "GET /qos_control/server1.do HTTP/1.1" 200 5970 "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1.5) Gecko/20070713 Firefox/2.0.0.5" 1 - - 1 id=urljfcCoIIQAAAiyvNsAAAAA #2226
+__192.168.32.132 - - [19/Jan/2008:19:50:16 +0100] "GET /qos_control/qsfilter2.do?server=server1 HTTP/1.1" 200 7624 "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1.5) Gecko/20070713 Firefox/2.0.0.5" 0 - - 1 id=utHNmsCoIIQAAAiyvNwAAAAA #2226
+__192.168.32.132 - - [19/Jan/2008:19:50:36 +0100] "POST /qos_control/qsfilter2.do?server=server1&action=upload HTTP/1.1" 200 5309 "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1.5) Gecko/20070713 Firefox/2.0.0.5" 0 - - 1 id=vAmpscCoIIQAAAiyvN0AAAAB #2226
+__
+__-----------------------------15922602401425828601184594646
+__Content-Disposition: form-data; name="action"
+__
+__upload
+__-----------------------------15922602401425828601184594646--
+_EXPECT . "200 OK"
+_EXPECT . "server = server1"
+_EXPECT . "action = upload"
+_WAIT
+
+_REQ localhost 16100
+__POST /cgi/show.cgi HTTP/1.1
+__Host: localhost
+__Connection: keep-alive
+__Content-Type: multipart/form-data; boundary=---------------------------15922602401425828601184594646
+__Content-Length: AUTO
+__
+__-----------------------------15922602401425828601184594646
+__Content-Disposition: form-data; name="access_log"; filename="access_log"
+__Content-Type: application/octet-stream
+__
+_PIPE
+_EXEC cat scripts/bin
+__
+__-----------------------------15922602401425828601184594646
+__Content-Disposition: form-data; name="action"
+__
+__upload
+__-----------------------------15922602401425828601184594646--
+_EXPECT . "200 OK"
+_WAIT
+
+END

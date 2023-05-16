@@ -1,0 +1,54 @@
+#
+# tests the "nbytes bug" reported by James Wright
+#
+
+SET 1k=datadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadata
+
+CLIENT
+
+_REQ localhost 16100
+__POST /htt/nbytes/post HTTP/1.1
+__Host: localhost
+__Content-Type: apPlication/x-www-form-urlencoded
+__Content-Length: AUTO
+__
+_-alwaysremoveme=123&name2=${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}X
+_EXPECT . "200 OK"
+_WAIT
+
+_REQ localhost 16100
+__POST /htt/nbytes/post HTTP/1.1
+__Host: localhost
+__Content-Type: apPlication/x-www-form-urlencoded
+__Content-Length: AUTO
+__
+_-alwaysremoveme=123&name2=${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}X${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}y${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}z
+_EXPECT . "200 OK"
+_WAIT
+
+END
+
+SERVER 16101
+
+_RES
+_EXPECT . "Content-Length: 16391"
+_EXPECT . "name2=${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}X"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+
+_RES
+_EXPECT . "name2=${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}X"
+_EXPECT . "${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}y"
+_EXPECT . "${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}${1k}z"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+
+END

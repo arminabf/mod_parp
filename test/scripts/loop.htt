@@ -1,0 +1,22 @@
+
+CLIENT 10
+
+_LOOP 10
+
+_LOOP 100
+_REQ localhost 16100
+__POST /test/post/2 HTTP/1.1
+__Host: localhost
+__Content-Type: application/x-www-form-urlencoded
+__Content-Length: AUTO
+__
+__param1=value1&param2=value2&param3=value3&param4&
+_EXPECT . "200 OK"
+_EXPECT . "recvd: param2 = value2"
+_WAIT
+_END LOOP
+_CLOSE
+
+_END LOOP
+
+END

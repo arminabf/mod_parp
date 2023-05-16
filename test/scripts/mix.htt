@@ -1,0 +1,48 @@
+
+CLIENT
+
+_REQ localhost 16100
+__POST /htt HTTP/1.1
+__Host: localhost
+__Content-Type: apPlication/x-www-form-urlencoded
+__Content-Length: AUTO
+__
+__param1=value1&param2=value2&param3=value3
+_EXPECT . "==OK=="
+_WAIT
+
+_REQ localhost 16100
+__POST /htt?param4=value4 HTTP/1.1
+__Host: localhost
+__Content-Type: apPlication/x-www-form-urlencoded
+__Content-Length: AUTO
+__
+__param1=value1&param2=value2&param3=value3
+_EXPECT . "==OK=="
+_WAIT
+
+END
+
+SERVER 16101
+
+_RES
+_EXPECT . "param1=value1&param2=value2&param3=value3"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+
+_RES
+_EXPECT . "/htt.param4=value4"
+_EXPECT . "param1=value1&param2=value2&param3=value3"
+_EXPECT . "!param1=value1&param2=value2&param3=value3&param4=value4"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+
+END

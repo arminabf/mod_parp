@@ -1,0 +1,98 @@
+StartServers            1
+<IfModule prefork.c>
+MinSpareServers         1
+MaxSpareServers         2
+MaxClients              20
+</IfModule>
+MaxRequestsPerChild     1000000
+ServerName              myhost
+User                    ##USER##
+Group                   users
+ServerAdmin             webmaster@myhost
+ServerRoot              ##SERVER_ROOT##
+DocumentRoot            ##SERVER_ROOT##/htdocs
+ServerSignature         off
+HostnameLookups         off
+UseCanonicalName        on
+UseCanonicalPhysicalPort on
+<IfDefine !apache24>
+LockFile                ##SERVER_ROOT##/logs/accept.lock
+</IfDefine>
+Timeout                 300
+KeepAlive               On
+MaxKeepAliveRequests    100
+
+# Apache 2.4.3 bug requires a LimitRequestBody setting
+LimitRequestBody        536870912
+
+KeepAliveTimeout        64
+<IfDefine !apache24>
+DefaultType             text/plain
+</IfDefine>
+
+LogFormat               "%h %l %u %t \"%r\" %>s %b \"%{User-Agent}i\" %T body=%{PARPContentLength}e #%P"
+
+LogLevel                debug 
+ErrorLog                ##SERVER_ROOT##/logs/error_log
+TransferLog             ##SERVER_ROOT##/logs/access_log
+PidFile                 ##SERVER_ROOT##/logs/pid
+
+<IfDefine !apache24>
+LoadModule              parp_module ##SERVER_ROOT##/../../httpd/modules/parp/.libs/mod_parp.so
+LoadModule              parp_appl_module ##SERVER_ROOT##/../../httpd/modules/parp/.libs/mod_parp_appl.so
+</IfDefine>
+
+AddOutputFilter         INCLUDES .shtml
+Options                 Includes
+
+TypesConfig             ##SERVER_ROOT##/conf/mime.types
+CoreDumpDirectory       ##SERVER_ROOT##/logs
+
+# Enable extended statistics for mod_status
+ExtendedStatus          On
+<IfDefine DisableModifyBodyHook>
+DisableModifyBodyHook on
+</IfDefine>
+Listen       127.0.0.1:16100
+<VirtualHost 127.0.0.1:16100>
+   ServerName localhost
+   ServerAdmin webmaster@localhost
+
+   ProxyRequests              Off
+   <Proxy *>
+      Order deny,allow
+      Allow from all
+   </Proxy>
+   ProxyPass                  /htt http://localhost:16101/htt
+   ProxyPassReverse           /htt http://localhost:16101/htt
+
+   # enable parp
+   #SetEnvIf Content-Type ".*application/x-www-form-urlencoded.*" parp
+   #SetEnvIf Content-Type ".*multipart/form-data.*" parp
+   #SetEnvIf Content-Type ".*multipart/mixed.*" parp
+
+   <IfDefine noerror>
+   PARP_ExitOnError 200
+   </IfDefine>
+
+   PARP_BodyData text/foo text/xml text/html
+
+<IfDefine anybody>
+   PARP_BodyData */*
+</IfDefine>
+
+   SetEnvIf Request_URI nbytes parp
+
+   ScriptAlias /cgi/ ##SERVER_ROOT##/htdocs/cgi/
+   <Location /cgi>
+       Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+       Order allow,deny
+       Allow from all
+   </Location>
+
+   <Location /test>
+     SetHandler parp-test-handler
+     SetEnvIf Content-Type "text/plain" !parp
+   </Location>
+
+</VirtualHost>

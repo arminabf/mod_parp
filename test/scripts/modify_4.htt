@@ -1,0 +1,27 @@
+
+CLIENT
+
+_REQ localhost 16100
+__POST /htt/modify?param4=value4 HTTP/1.1
+__Host: localhost
+__Content-Type: apPlication/x-www-form-urlencoded
+__Content-Length: AUTO
+__
+__param1=value1&param2=changeme&alwaysremoveme=1234567890&param3=value3
+_EXPECT . "==OK=="
+_WAIT
+
+END
+
+SERVER 16101
+
+_RES
+_EXPECT . "param1=value1&param2=this_has_changed&param3=value3"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+
+END

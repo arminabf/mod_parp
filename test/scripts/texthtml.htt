@@ -1,0 +1,27 @@
+
+CLIENT
+_REQ localhost 16100
+__POST /test/post/qsfilter2.do?server=server1 HTTP/1.1
+__Host: localhost
+__Connection: keep-alive
+__Content-Type: text/html
+__Content-Length: AUTO
+__
+__text_html_data
+_EXPECT . "200 OK"
+_EXPECT . "body: text_html_data"
+_WAIT
+
+_REQ localhost 16100
+__POST /test/post/qsfilter2.do?server=server1 HTTP/1.1
+__Host: localhost
+__Connection: keep-alive
+__Content-Type: text/html; charset=utf-8
+__Content-Length: AUTO
+__
+__text_html_data
+_EXPECT . "200 OK"
+_EXPECT . "body: text_html_data"
+_WAIT
+
+END

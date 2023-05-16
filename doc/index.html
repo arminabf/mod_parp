@@ -1,0 +1,236 @@
+<html>
+<head>
+<title>mod_parp</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<meta name="author" content="Christian Liesch, Pascal Buchbinder">
+<style TYPE="text/css">
+<!--  
+  body {
+	background-color: white;
+	color: black;
+	font-family: monospace;
+	font-weight: normal;
+	text-align: left;
+  }
+  a:link    { color: rgb(95,10,15); }
+  a:visited { color:black; }
+  a:focus   { color:black; text-decoration:underline; }
+  a:hover   { color:black; text-decoration:none; }
+  a:active  { color:black; text-decoration:underline; }
+-->
+</style>
+</head>
+<body>
+&nbsp;&nbsp;____&nbsp;&nbsp;_____&nbsp;&nbsp;____&nbsp;____&nbsp;&nbsp;<br>
+&nbsp;|H&nbsp;_&nbsp;\(____&nbsp;|/&nbsp;___)&nbsp;&nbsp;_&nbsp;\&nbsp;<br>
+&nbsp;|T|_|&nbsp;/&nbsp;___&nbsp;|&nbsp;|&nbsp;&nbsp;&nbsp;|&nbsp;|_|&nbsp;|<br>
+&nbsp;|T&nbsp;__/\_____|_|&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;__/&nbsp;<br>
+&nbsp;|P|ParameterParser|_|&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;http://parp.sourceforge.net<br>
+&nbsp; 
+<table>
+<tbody>
+<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>
+
+
+<p>
+mod_parp is a HTTP request parameter parser module for the Apache web server. It processes the request message body as well as the query portion of the request URL. The module parsed this data and provides all parameter to other Apache modules by a table of name/value pairs.
+</p>
+
+
+<p>
+The following content types are supported:
+<ul>
+<li>application/x-www-form-urlencoded</li>
+<li>multipart/form-data</li>
+<li>multipart/mixed</li>
+</ul>
+</p>
+
+
+<p>
+Activation:<br>
+The module is activated by setting the "parp" key in either the request notes table (r-&gt;notes) or in the environment variables table (r-&gt;subprocess_env). mod_parp probes for the "parp" variable at the header parser hook right after the Apache module mod_setenvif. You may set "parp" by your own module or by using mod_setenvif.
+<table border="0" cellspacing="5" cellpadding="10" width="100%">
+<tr><td bgcolor="#EBE5E0">
+<pre>
+# Load the module into your server:
+LoadModule parp_module   &lt;path to module&gt;/mod_parp.so
+
+# activate mod_parp for all requests matching the URL /a /b but not the URL /a/upload:
+SetEnvIf   Request_URI   ^/a.*            parp
+SetEnvIf   Request_URI   ^/a/upload.*    !parp
+SetEnvIf   Request_URI   ^/b.*            parp
+
+# suppress content types not supported by mod_parp:
+SetEnvIf   Content-Type  text/plain      !parp
+SetEnvIf   Content-Type  text/xml        !parp
+SetEnvIf   Content-Type  text/html       !parp
+</pre>
+</td></tr>
+</table>
+</p>
+
+
+<p>
+Error handling:<br>
+mod_parp denies request on parsing errors by default. The default return code is 500. You may override this return code using the directive "PARP_ExitOnError &lt;code&gt;". Set the code to 200 in order to ignore erros.
+<table border="0" cellspacing="5" cellpadding="10" width="100%">
+<tr><td bgcolor="#EBE5E0">
+<pre>
+# Ignore parser errors:
+PARP_ExitOnError         200
+</pre>
+</td></tr>
+</table>
+</p>
+
+
+<p>
+Memory:<br>
+mod_parp stores the whole request message body in the servers memory. Use the "LimitRequestBody" directive to <b>limit the maximum data size!</b><br>
+You may use mod_deflate in order to decompress incomming data. mod_parp calulates the new Content-Length (total number of bytes) and stores it within the <i>PARPContentLength</i> Apache environment variable.
+</p>
+
+
+<p>
+API:<br>
+The table storing the request data my be accessed using an optional function or by registering a callback (hook) to mod_parp.
+</p>
+<p>
+Optional function sample code:
+<table border="0" cellspacing="5" cellpadding="10" width="100%">
+<tr><td bgcolor="#EBE5E0">
+<pre>
+// 1) You may use the following forward declaration if not including mod_parp.h.
+APR_DECLARE_OPTIONAL_FN(apr_table_t *, parp_hp_table, (request_rec *));
+
+// 2) Implement your handler using the parp_hp_table() function. Don't call
+//    the function before mod_parp's header parser has been executed.
+static int parp_appl_handler(request_rec * r) {
+  ...
+  APR_OPTIONAL_FN_TYPE(parp_hp_table) *parp_appl_hp_table = 
+    APR_RETRIEVE_OPTIONAL_FN(parp_hp_table);
+  apt_table_t *tl = parp_appl_hp_table(r);
+  if(tl) {
+    int i;
+    apr_table_entry_t *e = (apr_table_entry_t *) apr_table_elts(tl)->elts;
+    for(i = 0; i < apr_table_elts(tl)->nelts; ++i) {
+      ap_rprintf(r, "%d: %s = %s\n", i,
+                 ap_escape_html(r->pool, e[i].key),
+                 ap_escape_html(r->pool, e[i].val));
+      }
+    }
+  ...
+</pre>
+</td></tr>
+</table>
+</p>
+
+
+<p>
+Sample code using the mod_parp hook:
+<table border="0" cellspacing="5" cellpadding="10" width="100%">
+<tr><td bgcolor="#EBE5E0">
+<pre>
+// 1) Include file providing the hook definitions.
+#include "mod_parp.h"
+
+// 2) Implement the callback function processing the parameter table.
+//    Note: return DECLINED on success.
+static apr_status_t parp_appl_impl(request_rec *r, apr_table_t *table) {
+  int i;
+  apr_table_entry_t *e = (apr_table_entry_t *) apr_table_elts(tl)->elts;
+  for (i = 0; i < apr_table_elts(tl)->nelts; ++i) {
+  ...
+  return DECLINED;
+}
+
+// 3) Register your method to mod_parp.
+APR_OPTIONAL_HOOK(parp, hp_hook, parp_appl_impl, NULL, NULL, APR_HOOK_MIDDLE);
+</pre>
+</td></tr>
+</table>
+</p>
+
+
+<p>
+<a name="PARP_BodyData"></a>
+Raw body processing:<br>
+mod_parp implements a function to access the raw body data of a HTTP POST request. Specify the raw content type handler using the "PARP_BodyData &lt;type&gt;" directive.
+<table border="0" cellspacing="5" cellpadding="10" width="100%">
+<tr><td bgcolor="#EBE5E0">
+<pre>
+# Enable processing of other "raw" data types:
+PARP_BodyData            text/plain text/xml text/html
+SetEnvIf   Content-Type  text/plain       parp
+SetEnvIf   Content-Type  text/xml         parp
+SetEnvIf   Content-Type  text/html        parp
+</pre>
+</td></tr>
+</table>
+You may enable raw body processing for any content type using "*/*" for its type.
+</p>
+<p>
+Sample code to access the raw body data:
+<table border="0" cellspacing="5" cellpadding="10" width="100%">
+<tr><td bgcolor="#EBE5E0">
+<pre>
+// 1) You may use the following forward declaration if not including mod_parp.h.
+APR_DECLARE_OPTIONAL_FN(char *, parp_body_data, (request_rec *, apr_size_t *));
+
+// 2) Implement your handler using the parp_body_data() function. Don't call
+//    the function before mod_parp's header parser has been executed.
+static int parp_appl_handler(request_rec * r) {
+  ...
+  apr_size_t len;
+  APR_OPTIONAL_FN_TYPE(parp_body_data) *parp_appl_body_data = 
+    APR_RETRIEVE_OPTIONAL_FN(parp_body_data);
+  const char *data = parp_appl_body_data(r, &amp;len);
+  if(data) {
+  ...
+</pre>
+</td></tr>
+</table>
+</p>
+
+<p>
+Parameter modification:<br>
+mod_parp allows to modify query and body parameters. With the parp modify_hook an array is passed where the values can be modified or deleted.
+The array contains elements with the following structure:
+<table border="0" cellspacing="5" cellpadding="10" width="100%">
+<tr><td bgcolor="#EBE5E0">
+<pre>
+parp_entry_t:
+  key (string):       parameter name
+  value (string):     original parameter value
+  new_value (string): the modified value or NULL, to delete only the value set to "" (empty string)
+  delete (integer):   if set != 0 the whole key/value pair is removed form the request
+
+</pre>
+</td></tr>
+</table>
+</p>
+<p>
+Sample code to modify the parameters is available in the following file: <a href="http://parp.cvs.sourceforge.net/viewvc/parp/parp/httpd_src/modules/parp/mod_parp_appl.c?content-type=text%2Fplain">mod_parp_appl.c</a>.
+</p>
+<p>
+You may also remove parameters from the request by adding the name of the 
+parameter to remove to the request notes variable PARP_DELETE_PARAM. </br>
+Example: </br>&nbsp;&nbsp;<code>apr_table_add(r->notes, "PARP_DELETE_PARAM", "special");</code>
+</p>
+
+
+<p>
+mod_parp is available at <a href="http://sourceforge.net/projects/parp/">SourceForge.net</a> 
+under the <a href="LICENSE.txt">Apache License Version 2.0</a>.
+</p>
+
+</td></tr>
+</tbody>
+</table>
+<hr>
+<a href="http://sourceforge.net/projects/parp/"><img align="right" src="http://sflogo.sourceforge.net/sflogo.php?group_id=230159&amp;type=1" width="88" height="31" border="0" alt="parp at SourceForge.net" /></a>
+<SMALL><SMALL>&copy; 2008-2016, PARP</SMALL></SMALL>
+</body>
+</html>

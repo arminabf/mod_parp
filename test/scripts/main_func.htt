@@ -1,0 +1,199 @@
+
+CLIENT
+# Simple GET
+_REQ localhost 16100
+__GET /test/get/1?par%a?m1=val%00ue1&param2=value2&param3=value3&param4& HTTP/1.1
+__Host: localhost
+__
+_EXPECT . "200 OK"
+_EXPECT . "recvd: par%a\?m1 = val%00ue1"
+_EXPECT . "recvd: param2 = value2"
+_EXPECT . "recvd: param3 = value3"
+_EXPECT . "recvd: param4 ="
+_EXPECT . "of: par%a\?m1 = val%00ue1"
+_EXPECT . "of: param2 = value2"
+_EXPECT . "of: param3 = value3"
+_EXPECT . "of: param4 ="
+_WAIT
+
+# Simple POST
+_REQ localhost 16100
+__POST /test/post/2 HTTP/1.1
+__Host: localhost
+__Content-Type: apPlication/x-www-form-urlencoded
+__Content-Length: AUTO
+__
+__param1=value1&param2=value2&param3=value3&param4&
+_EXPECT . "200 OK"
+_EXPECT . "recvd: param1 = value1"
+_EXPECT . "recvd: param2 = value2"
+_EXPECT . "recvd: param3 = value3"
+_EXPECT . "recvd: param4 ="
+_EXPECT . "of: param1 = value1"
+_EXPECT . "of: param2 = value2"
+_EXPECT . "of: param3 = value3"
+_EXPECT . "of: param4 ="
+_WAIT
+
+# GET with body data
+_REQ localhost 16100
+__GET /test/post/2a HTTP/1.1
+__Host: localhost
+__Content-Type: apPlication/x-www-form-urlencoded
+__Content-Length: AUTO
+__
+__param1=value1&param2=value2&param3=value3&param4&
+_EXPECT . "200 OK"
+_EXPECT . "recvd: param1 = value1"
+_EXPECT . "recvd: param2 = value2"
+_EXPECT . "recvd: param3 = value3"
+_EXPECT . "recvd: param4 ="
+_EXPECT . "of: param1 = value1"
+_EXPECT . "of: param2 = value2"
+_EXPECT . "of: param3 = value3"
+_EXPECT . "of: param4 ="
+_WAIT
+
+# POST with wrong content type
+_REQ localhost 16100
+__POST /test/post/3 HTTP/1.1
+__Host: localhost
+__Content-Type: foo/bar 
+__Content-Length: AUTO
+__
+__param1=value1&param2=value2&param3=value3&param4&
+_EXPECT . "!200 OK"
+_EXPECT . "!param1"
+_EXPECT . "!param2"
+_EXPECT . "!param3"
+_EXPECT . "!param4"
+_WAIT
+_CLOSE
+
+# POST with no content type
+_REQ localhost 16100
+__POST /test/post/4 HTTP/1.1
+__Host: localhost
+__Content-Length: AUTO
+__
+__param1=value1&param2=value2&param3=value3&param4&
+_EXPECT . "!200 OK"
+_EXPECT . "!param1"
+_EXPECT . "!param2"
+_EXPECT . "!param3"
+_EXPECT . "!param4"
+_WAIT
+_CLOSE
+
+# POST multipart data
+_REQ localhost 16100
+__POST /test/post/5?param4=value4&param1=value5 HTTP/1.1
+__Host: localhost
+__Content-Type: multipart/form-data; boundary=foo
+__Content-Length: AUTO
+__
+__--foo
+__content-Type: multipart/mixed; boundary=foo2
+__content-Disposition: form-data; name="multi"
+__
+__--foo2
+__content-disposition: form-data; name="paramA"
+__
+__valueA
+__--foo2--
+__--foo
+__content-disposition: name="param1"; form-data;
+__
+__value1
+__--foo
+__content-disposition: form-data;    NAME="param2"
+__
+__value2
+__--foo
+__content-disposition:    Form-data; name="param3"
+__
+__value3
+__--foo--
+_EXPECT . "200 OK"
+_EXPECT . "recvd: paramA = valueA"
+_EXPECT . "recvd: param1 = value1"
+_EXPECT . "recvd: param1 = value5"
+_EXPECT . "recvd: param2 = value2"
+_EXPECT . "recvd: param3 = value3"
+_EXPECT . "recvd: param4 = value4"
+_EXPECT . "of: paramA = valueA"
+_EXPECT . "of: param1 = value1"
+_EXPECT . "of: param2 = value2"
+_EXPECT . "of: param3 = value3"
+_EXPECT . "of: param4 = value4"
+_WAIT
+
+# Simple GET
+_REQ localhost 16100
+__GET /test/get/6 HTTP/1.1
+__Host: localhost
+__
+_EXPECT . "200 OK"
+_WAIT
+
+_REQ localhost 16100
+__POST /htt/5?param4=value4&param1=value5 HTTP/1.1
+__Host: localhost
+__Content-Type: multipart/form-data; boundary=foo
+__Content-Length: AUTO
+__
+__--foo
+__content-Type: multipart/mixed; boundary=foo2
+__content-Disposition: form-data; name="multi"
+__
+__--foo2
+__content-disposition: form-data; name="paramA"
+__
+__valueA
+__--foo2--
+__--foo
+__content-disposition: name="param1"; form-data;
+__
+__value1
+__--foo
+__content-disposition: form-data;    NAME="param2"
+__
+__value2
+__--foo
+__content-disposition:    Form-data; name="param3"
+__
+__value3
+__--foo--
+_EXPECT . "200 OK"
+_WAIT
+
+END
+
+SERVER 16101
+
+_RES
+_EXPECT . "\-\-foo"
+_EXPECT . "content\-Type: multipart/mixed; boundary=foo2"
+_EXPECT . "content\-Disposition: form\-data; name=\"multi\""
+_EXPECT . "\-\-foo2"
+_EXPECT . "content\-disposition: form\-data; name=\"paramA\""
+_EXPECT . "valueA"
+_EXPECT . "\-\-foo2\-\-"
+_EXPECT . "\-\-foo"
+_EXPECT . "content\-disposition: name=\"param1\"; form\-data;"
+_EXPECT . "value1"
+_EXPECT . "\-\-foo"
+_EXPECT . "content\-disposition: form\-data;    NAME=\"param2\""
+_EXPECT . "value2"
+_EXPECT . "\-\-foo"
+_EXPECT . "content\-disposition:    Form\-data; name=\"param3\""
+_EXPECT . "value3"
+_EXPECT . "\-\-foo\-\-"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+
+END

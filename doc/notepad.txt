@@ -1,0 +1,8 @@
+- new API (item table) including content type (for form-data)
+- parser for JSON?
+- how to deal with XML?
+- offere functions for char decoding?
+
+----------------
+
+scp index.html pbuchbinder,parp@web.sourceforge.net:htdocs

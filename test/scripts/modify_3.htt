@@ -1,0 +1,375 @@
+CLIENT
+
+_REQ localhost 16100
+__POST /htt/modify?param4=value4&param5=changeme HTTP/1.1
+__Host: localhost
+__Content-Type: apPlication/x-www-form-urlencoded
+__Content-Length: AUTO
+__
+__param1=value1&param2=changeme&param3=value3
+_EXPECT . "==OK=="
+_WAIT
+
+_REQ localhost 16100
+__POST /htt/modify?param4=value4&param5=deleteparam HTTP/1.1
+__Host: localhost
+__Content-Type: apPlication/x-www-form-urlencoded
+__Content-Length: AUTO
+__
+__param1=value1&param2=changeme&param3=value3
+_EXPECT . "==OK=="
+_WAIT
+
+_REQ localhost 16100
+__POST /htt/modify?xx=yy&param4=deleteparam&param5=value5 HTTP/1.1
+__Host: localhost
+__Content-Type: apPlication/x-www-form-urlencoded
+__Content-Length: AUTO
+__
+__param1=value1&param2=changeme&param3=value3
+_EXPECT . "==OK=="
+_WAIT
+
+_REQ localhost 16100
+__POST /htt/modify?param4=deleteparam&param5=value5 HTTP/1.1
+__Host: localhost
+__Content-Type: apPlication/x-www-form-urlencoded
+__Content-Length: AUTO
+__
+__param1=value1&param2=changeme&param3=value3
+_EXPECT . "==OK=="
+_WAIT
+
+_REQ localhost 16100
+__POST /htt/modify?param4=value4 HTTP/1.1
+__Host: localhost
+__Content-Type: multipart/form-data; boundary=foo
+__Content-Length: AUTO
+__
+__--foo
+__content-disposition: form-data; name="paramA"
+__
+__deleteparam
+__--foo
+__content-disposition: form-data; name="paramB"
+__content-Type: multipart/form-data; boundary=bar
+__
+__--bar
+__content-disposition: form-data; name="param1"
+__
+__value1
+__--bar
+__content-disposition: form-data; name="param2"
+__
+__value2
+__--bar--
+__--foo--
+_EXPECT . "==OK=="
+_WAIT
+
+_REQ localhost 16100
+__POST /htt/modify?param4=value4 HTTP/1.1
+__Host: localhost
+__Content-Type: multipart/form-data; boundary=foo
+__Content-Length: AUTO
+__
+__--foo
+__content-disposition: form-data; name="paramA"
+__
+__valueA
+__--foo
+__content-disposition: form-data; name="paramB"
+__content-Type: multipart/form-data; boundary=bar
+__
+__--bar
+__content-disposition: form-data; name="param1"
+__
+__deleteparam
+__--bar
+__content-disposition: form-data; name="param2"
+__
+__deleteparam
+__--bar--
+__--foo--
+_EXPECT . "==OK=="
+_WAIT
+
+_REQ localhost 16100
+__POST /htt/modify?param4=value4 HTTP/1.1
+__Host: localhost
+__Content-Type: multipart/form-data; boundary=foo
+__Content-Length: AUTO
+__
+__--foo
+__content-disposition: form-data; name="paramA"
+__
+__valueA
+__--foo
+__content-disposition: form-data; name="paramB"
+__content-Type: multipart/form-data; boundary=bar
+__
+__--bar
+__content-disposition: form-data; name="param1"
+__
+__changeme
+__--bar
+__content-disposition: form-data; name="param2"
+__
+__deleteparam
+__--bar--
+__--foo--
+_EXPECT . "==OK=="
+_WAIT
+
+_REQ localhost 16100
+__POST /htt/modify?param4=value4 HTTP/1.1
+__Host: localhost
+__Content-Type: multipart/form-data; boundary=foo
+__Content-Length: AUTO
+__
+__--foo
+__content-disposition: form-data; name="paramA"
+__
+__changethat
+__--foo
+__content-disposition: form-data; name="paramB"
+__content-Type: multipart/form-data; boundary=bar
+__
+__--bar
+__content-disposition: form-data; name="param1"
+__
+__deleteparam
+__--bar
+__content-disposition: form-data; name="param2"
+__
+__value2
+__--bar--
+__--foo--
+_EXPECT . "==OK=="
+_WAIT
+
+
+_REQ localhost 16100
+__POST /htt/modify?param4=value4 HTTP/1.1
+__Host: localhost
+__Content-Type: apPlication/x-www-form-urlencoded
+__Content-Length: AUTO
+__
+_-param1=deleteparam&param2=changeme&param3=changethat
+_EXPECT . "==OK=="
+_WAIT
+
+_REQ localhost 16100
+__POST /htt/modify?param4=value4 HTTP/1.1
+__Host: localhost
+__Content-Type: apPlication/x-www-form-urlencoded
+__Content-Length: AUTO
+__
+_-param1=value1&param2=deleteparam&param3=value3
+_EXPECT . "==OK=="
+_WAIT
+
+_REQ localhost 16100
+__POST /htt/modify?param4=value4 HTTP/1.1
+__Host: localhost
+__Content-Type: apPlication/x-www-form-urlencoded
+__Content-Length: AUTO
+__
+_-param1=value1&param2=value2&param3=deleteparam
+_EXPECT . "==OK=="
+_WAIT
+
+_REQ localhost 16100
+__POST /htt/modify?param4=value4 HTTP/1.1
+__Host: localhost
+__Content-Type: apPlication/x-www-form-urlencoded
+__Content-Length: AUTO
+__
+_-param1=deleteparam&param2=value2&param3=deleteparam
+_EXPECT . "==OK=="
+_WAIT
+
+
+END
+
+SERVER 16101
+
+_RES
+_EXPECT . "/htt/modify.param4=value4&param5=this_has_changed"
+_EXPECT . "!changeme"
+_EXPECT . "param1=value1&param2=this_has_changed&param3=value3"
+_EXPECT . "Content-Length: 53"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+
+_RES
+_EXPECT . "/htt/modify.param4=value4"
+_EXPECT . "!param5"
+_EXPECT . "!deleteparam"
+_EXPECT . "!changeme"
+_EXPECT . "param1=value1&param2=this_has_changed&param3=value3"
+_EXPECT . "Content-Length: 53"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+_RES
+_EXPECT . "/htt/modify\?xx=yy&param5=value5"
+_EXPECT . "!param4"
+_EXPECT . "!deleteparam"
+_EXPECT . "!changeme"
+_EXPECT . "param1=value1&param2=this_has_changed&param3=value3"
+_EXPECT . "Content-Length: 53"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+
+_RES
+_EXPECT . "/htt/modify\?param5=value5"
+_EXPECT . "!param4"
+_EXPECT . "!deleteparam"
+_EXPECT . "!changeme"
+_EXPECT . "param1=value1&param2=this_has_changed&param3=value3"
+_EXPECT . "Content-Length: 53"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+
+_RES
+_EXPECT . "POST /htt/modify\?param4=value4"
+_EXPECT . "!content-disposition: form-data; name=\"paramA\""
+_EXPECT . "content-disposition: form-data; name=\"paramB\""
+_EXPECT . "!valueA"
+_EXPECT . "content-disposition: form-data; name=\"param1\""
+_EXPECT . "value1"
+_EXPECT . "content-disposition: form-data; name=\"param2\""
+_EXPECT . "value2"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+
+_RES
+_EXPECT . "POST /htt/modify\?param4=value4"
+_EXPECT . "content-disposition: form-data; name=\"paramA\""
+_EXPECT . "valueA"
+_EXPECT . "!content-disposition: form-data; name=\"paramB\""
+_EXPECT . "!content-disposition: form-data; name=\"param1\""
+_EXPECT . "!value1"
+_EXPECT . "!content-disposition: form-data; name=\"param2\""
+_EXPECT . "!value2"
+_EXPECT . "!--bar--"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+
+
+_RES
+_EXPECT . "POST /htt/modify\?param4=value4"
+_EXPECT . "content-disposition: form-data; name=\"paramA\""
+_EXPECT . "valueA"
+_EXPECT . "content-disposition: form-data; name=\"paramB\""
+_EXPECT . "content-disposition: form-data; name=\"param1\""
+_EXPECT . "this_has_changed"
+_EXPECT . "!content-disposition: form-data; name=\"param2\""
+_EXPECT . "!value2"
+_EXPECT . "--bar--"
+_EXPECT . "--foo--"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+
+_RES
+_EXPECT . "POST /htt/modify\?param4=value4"
+_EXPECT . "content-disposition: form-data; name=\"paramA\""
+_EXPECT . "!valueA"
+_EXPECT . "here"
+_EXPECT . "content-disposition: form-data; name=\"paramB\""
+_EXPECT . "!content-disposition: form-data; name=\"param1\""
+_EXPECT . "!value1"
+_EXPECT . "content-disposition: form-data; name=\"param2\""
+_EXPECT . "value2"
+_EXPECT . "--bar--"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+
+_RES
+_EXPECT . "/htt/modify.param4=value4"
+_EXPECT . "!changeme"
+_EXPECT . "!changethat"
+_EXPECT . "!deleteparam"
+_EXPECT . "!param1"
+_EXPECT . "param2=this_has_changed&param3=here"
+_EXPECT . "Content-Length: 35"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+
+_RES
+_EXPECT . "/htt/modify.param4=value4"
+_EXPECT . "!deleteparam"
+_EXPECT . "!param2"
+_EXPECT . "param1=value1&param3=value3"
+_EXPECT . "Content-Length: 27"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+
+_RES
+_EXPECT . "/htt/modify.param4=value4"
+_EXPECT . "!deleteparam"
+_EXPECT . "!param3"
+_EXPECT . "param1=value1&param2=value2"
+_EXPECT . "Content-Length: 27"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+
+_RES
+_EXPECT . "/htt/modify.param4=value4"
+_EXPECT . "!deleteparam"
+_EXPECT . "!param1"
+_EXPECT . "!param3"
+_EXPECT . "param2=value2"
+_EXPECT . "Content-Length: 13"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+
+END

@@ -1,0 +1,22 @@
+
+CLIENT
+
+_REQ localhost 16100
+__POST /test/post/2 HTTP/1.1
+__Host: localhost
+__Content-Type: application/x-www-form-urlencoded
+__Transfer-Encoding: chunked
+_FLUSH
+_-param1=value01&
+_CHUNK
+__param2=value02
+_CHUNK
+__
+__0
+__
+_EXPECT . "recvd: param1 = value01"
+_EXPECT . "recvd: param2 = value02"
+_WAIT
+_CLOSE
+
+END

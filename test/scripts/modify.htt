@@ -1,0 +1,109 @@
+
+CLIENT
+
+_REQ localhost 16100
+__POST /htt/modify?param4=value4 HTTP/1.1
+__Host: localhost
+__Content-Type: apPlication/x-www-form-urlencoded
+__Content-Length: AUTO
+__
+__param1=value1&param2=changeme&param3=value3
+_EXPECT . "==OK=="
+_WAIT
+
+_REQ localhost 16100
+__POST /htt/modify?param4=value4 HTTP/1.1
+__Host: localhost
+__Content-Type: apPlication/x-www-form-urlencoded
+__Content-Length: AUTO
+__
+_-param1=value1&param2=changeme&param3=changethat
+_EXPECT . "==OK=="
+_WAIT
+
+_REQ localhost 16100
+__POST /htt/modify?param4=value4 HTTP/1.1
+__Host: localhost
+__Content-Type: apPlication/x-www-form-urlencoded
+__Content-Length: AUTO
+__
+_-param1=deletethis&param2=changeme&param3=changethat
+_EXPECT . "==OK=="
+_WAIT
+
+_REQ localhost 16100
+__POST /htt/modify?param4=value4&param1=value5 HTTP/1.1
+__Host: localhost
+__Content-Type: multipart/form-data; boundary=foo
+__Content-Length: AUTO
+__
+__--foo
+__content-disposition: form-data; name="paramA"
+__
+__changeme
+__--foo
+__content-disposition: form-data; name="paramB"
+__
+__valueB
+__--foo--
+_EXPECT . "==OK=="
+_WAIT
+
+END
+
+SERVER 16101
+
+_RES
+_EXPECT . "/htt/modify.param4=value4"
+_EXPECT . "!changeme"
+_EXPECT . "param1=value1&param2=this_has_changed&param3=value3"
+_EXPECT . "Content-Length: 53"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+
+_RES
+_EXPECT . "/htt/modify.param4=value4"
+_EXPECT . "!changeme"
+_EXPECT . "!changethat"
+_EXPECT . "param1=value1&param2=this_has_changed&param3=here"
+_EXPECT . "Content-Length: 49"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+
+_RES
+_EXPECT . "/htt/modify.param4=value4"
+_EXPECT . "!changeme"
+_EXPECT . "!changethat"
+_EXPECT . "!deletethis"
+_EXPECT . "param1=&param2=this_has_changed&param3=here"
+_EXPECT . "Content-Length: 43"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+
+_RES
+_EXPECT . "POST /htt/modify\?param4=value4&param1=value5"
+_EXPECT . "content-disposition: form-data; name=\"paramA\""
+_EXPECT . "!changeme"
+_EXPECT . "this_has_changed"
+_EXPECT . "content-disposition: form-data; name=\"paramB\""
+_EXPECT . "valueB"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+
+END

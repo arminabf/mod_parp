@@ -1,0 +1,90 @@
+Version 0.16
+
+  - Bugfix for losing parameter with non content-type text/plain
+    when deleting paramters. Contributed by Petar Bogdanovic
+
+
+Version 0.15
+
+  - Incoperates bug fix patch contributed by JamesWright
+    http://sourceforge.net/p/parp/bugs/3/
+
+Version 0.14
+
+  - Fixes potential endless loop when processing huge parameters.
+
+Version 0.13
+
+  - PARP_BodyData supports "*/*" to process any content type.
+
+Version 0.12
+
+  - Allows other modules to delete parameters by adding the parameter
+    name to the PARP_DELETE_PARAM r->notes table.
+
+Version 0.11
+
+  - the array and table entries returned by parp hooks contains the body 
+    as well as the query parameters
+  - the entries returnd by the parp modify_hook contains a field "delete",
+    when it's set to "1" the whole parameter incl. name will be removed
+  - can deal with RFC 1341 Multipart preamble and epilogue
+  - handels content-type text/plain correctly for multipart formdata
+  - new hook: modify_hook (replaces modify_body_hook)
+  - new type: parp_entry_t (replaces parp_body_entry_t)
+  - DEPRECATED: parp_body_entry_t
+  - DEPRECATED: modify_body_hook
+
+Version 0.10
+
+  - Error description if reading from client has failed, e.g. connection
+    has been closed or a filter of another Apache module has canceled
+    the request.
+
+Version 0.9
+
+  - modify_body_hook provides an array of parp_body_entry_t enties.
+    Each entry contains the parameter key and value as well as a
+    "new_value" field which allows parameter manipulation (you may
+    change the parameter's value by writing a new value string
+    to the "new_value" field).
+    The hook is executed at the header parser, similar to the hp_hook.
+
+Version 0.8
+
+  - Stores the content-length of the processed data within the
+    PARPContentLength environment variable (may be used to
+    adjust the content-length header when using mod_deflate).
+
+Version 0.7
+
+  - Ignore input filter date on error, else keepalive connection could hang 
+    for ever (actually until timeout).
+
+Version 0.6
+
+  - Export body data reader.
+
+Version 0.5
+
+  - Security fix in the get payload function, Apache
+    will reuse data buffer of buckets on the next burst
+    of bytes.
+
+Version 0.4
+
+  - Ignore request method. Try to read request body
+    if there is any.
+
+Version 0.3
+
+  - Correct content-length header if mod_deflate has
+    unzipped the request body when reading the data
+    from the client.
+
+Version 0.1
+
+  - Urlencrypted and multipart form data parser
+
+  - Supports recursive multipart boundaries
+    (hard limited to a 2 recursions)

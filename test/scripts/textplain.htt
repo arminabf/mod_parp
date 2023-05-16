@@ -1,0 +1,15 @@
+
+CLIENT
+_REQ localhost 16100
+__POST /test/post/qsfilter2.do?server=server1 HTTP/1.1
+__Host: localhost
+__Connection: keep-alive
+__Content-Type: text/plain
+__Content-Length: AUTO
+__
+__text_data
+_EXPECT . "200 OK"
+_EXPECT . "!text_data"
+_WAIT
+
+END

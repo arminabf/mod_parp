@@ -1,0 +1,26 @@
+CLIENT
+
+_REQ localhost 16100
+__POST /test/post/2 HTTP/1.1
+__Host: localhost
+__Content-Type: apPlication/x-www-form-urlencoded
+__Content-Length: 51
+__
+__param1=value1&param2=value2&param3=value3&param4&
+_EXPECT . "200 OK"
+_EXPECT . "recvd: param1 = value1"
+_EXPECT . "recvd: param2 = value2"
+_EXPECT . "recvd: param3 = value3"
+_EXPECT . "recvd: param4 ="
+_EXPECT . "of: param1 = value1"
+_EXPECT . "of: param2 = value2"
+_EXPECT . "of: param3 = value3"
+_EXPECT . "of: param4 ="
+_WAIT
+
+_CLOSE
+_SLEEP 200
+_EXPECT EXEC ".*POST /test/post/2 HTTP/1.1\" 200 160 \"-\" . body=51 #"
+_EXEC grep -v OPTIONS Server/logs/access_log | tail -1
+
+END

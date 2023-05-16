@@ -1,0 +1,49 @@
+
+CLIENT
+# POST multipart data
+_REQ localhost 16100
+__POST /htt/modify HTTP/1.1
+__Host: localhost
+__Content-Type: multipart/form-data; boundary=AaB03x
+__Content-Length: AUTO
+__
+__--AaB03x
+__Content-Disposition: form-data; name="paramA"
+__
+__deleteparam
+__--AaB03x
+__Content-Disposition: form-data; name="paramB"
+__
+__valueB
+__--AaB03x
+__Content-Disposition: form-data; name="paramC"
+__Content-Type: text/plain
+__
+__valueC
+__--AaB03x
+__Content-Disposition: form-data; name="paramD"
+__Content-Type: application/octet-stream
+__
+__valueD
+__--AaB03x--
+_EXPECT . "200 OK"
+_WAIT
+
+END
+
+SERVER 16101
+
+_RES
+_EXPECT . "POST"
+_EXPECT . "!paramA"
+_EXPECT . "valueB"
+_EXPECT . "valueC"
+_EXPECT . "valueD"
+_WAIT
+__HTTP/1.1 200 OK
+__Content-Length: AUTO 
+__Content-Type: text/plain
+__
+__==OK==
+
+END

@@ -1,0 +1,32 @@
+--------------------------------------------
+ Building PARP form scratch
+--------------------------------------------
+ 1) Download httpd to '3thrdparty/'
+    The Version is defined in './include.sh'
+ 2) Run scripts:
+      ./unpack.sh
+      ./patch.sh
+      ./configure.sh
+      ./build.sh
+
+
+--------------------------------------------
+ Releasing mod_parp to sourceforge.net
+--------------------------------------------
+
+ - Update Revision Number 'g_revision' in: 'httpd_src/modules/parp/mod_parp.c'
+ - Update Release notes: doc/CHANGES.txt
+ - Update Doc: doc/index.html
+ - Commit last changes
+ - Run in $TOP: 
+        cvs tag REL_<MAJOR>_<MINOR>
+ - Checkout tagged Version in new Folder:
+         cvs -z3 -d:ext:<USERNAME>@parp.cvs.sourceforge.net:/cvsroot/parp co -r <TAG> -P parp
+ - Run in $TOP:
+        ./package.sh
+ - Upload generated .tar.gz File to Sourceforge:
+    1) via WebGUI https://sourceforge.net/projects/parp/files/ --> Add Files
+    2) via SCP: 'scp mod_parp-<VERSION>-src.tar.gz <USERNAME>,parp@frs.sourceforge.net:/home/pfs/project/p/pa/parp/parp/<VERSION>/.' 
+ 
+   In the WebGUI go to the file browser and check 'Default Download for' 'Linux' and 'Solaris' in the detail view of the new file to mark as latest Version.
+ 
