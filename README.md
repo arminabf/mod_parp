@@ -90,7 +90,7 @@ static apr_status_t parp_appl_impl(request_rec *r, apr_table_t *table) {
 APR_OPTIONAL_HOOK(parp, hp_hook, parp_appl_impl, NULL, NULL, APR_HOOK_MIDDLE);
 ```
 
-# Raw body processing:
+# Raw body processing
 mod_parp implements a function to access the raw body data of a HTTP POST request. Specify the raw content type handler using the _PARP_BodyData &lt;type&gt;" directive.
 
 ```
