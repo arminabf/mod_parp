@@ -1,8 +1,12 @@
+Version 0.17
+
+  - Bugfix for incorrect processing of multipart/form-data in case
+    the payload size exceeds the read buffer size. Contributed by Armin Abfalterer
+
 Version 0.16
 
   - Bugfix for losing parameter with non content-type text/plain
     when deleting paramters. Contributed by Petar Bogdanovic
-
 
 Version 0.15
 
