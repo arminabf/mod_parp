@@ -4,7 +4,6 @@
  |T|_| / ___ | |   | |_| |
  |T __/\_____|_|   |  __/ 
  |P|ParameterParser|_|    
- http://parp.sourceforge.net
 ```
 
 mod_parp is a HTTP request parameter parser module for the Apache web server. It processes the request message body as well as the query portion of the request URL. The module parsed this data and provides all parameter to other Apache modules by a table of name/value pairs.
