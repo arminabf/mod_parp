@@ -1,9 +1,11 @@
-   ____  _____  ____ ____  
+```
+ ____  _____  ____ ____  
  |H _ \(____ |/ ___)  _ \ 
  |T|_| / ___ | |   | |_| |
  |T __/\_____|_|   |  __/ 
  |P|ParameterParser|_|    
  http://parp.sourceforge.net
+```
 
 mod_parp is a HTTP request parameter parser module for the Apache web server. It processes the request message body as well as the query portion of the request URL. The module parsed this data and provides all parameter to other Apache modules by a table of name/value pairs.
 
@@ -14,8 +16,7 @@ The following content types are supported:
 - multipart/mixed
 
 # Activation
-
-The module is activated by setting the "parp" key in either the request notes table (r->notes) or in the environment variables table (r->subprocess_env). mod_parp probes for the "parp" variable at the header parser hook right after the Apache module mod_setenvif. You may set "parp" by your own module or by using mod_setenvif.
+The module is activated by setting the _parp_ key in either the request notes table (_r->notes_) or in the environment variables table (_r->subprocess_env_). mod_parp probes for the _parp_ variable at the header parser hook right after the Apache module mod_setenvif. You may set _parp_ by your own module or by using [mod_setenvif](https://httpd.apache.org/docs/current/mod/mod_setenvif.html).
 
 ```
 # Load the module into your server:
@@ -33,7 +34,7 @@ SetEnvIf   Content-Type  text/html       !parp
 ```
 
 # Error handling
-mod_parp denies request on parsing errors by default. The default return code is 500. You may override this return code using the directive "PARP_ExitOnError <code>". Set the code to 200 in order to ignore erros.
+mod_parp denies request on parsing errors by default. The default return code is 500. You may override this return code using the directive _PARP_ExitOnError &lt;code&gt;_. Set the code to 200 in order to ignore errors.
 
 ```
 # Ignore parser errors
@@ -41,14 +42,11 @@ PARP_ExitOnError         200
 ```
 
 # Memory
-
-mod_parp stores the whole request message body in the servers memory. Use the "LimitRequestBody" directive to limit the maximum data size!
-You may use mod_deflate in order to decompress incomming data. mod_parp calulates the new Content-Length (total number of bytes) and stores it within the PARPContentLength Apache environment variable.
+mod_parp stores the whole request message body in the servers memory. Use the _LimitRequestBody_ directive to limit the maximum data size.
+You may use mod_deflate in order to decompress incomming data. mod_parp calulates the new Content-Length (total number of bytes) and stores it within the _PARPContentLength_ Apache environment variable.
 
 # API
-The table storing the request data my be accessed using an optional function or by registering a callback (hook) to mod_parp.
-
-Optional function sample code:
+The table storing the request data my be accessed using an optional function or by registering a callback (hook) to mod_parp. Optional function sample code:
 
 ```
 // (1) You may use the following forward declaration if not including mod_parp.h.
@@ -94,20 +92,17 @@ APR_OPTIONAL_HOOK(parp, hp_hook, parp_appl_impl, NULL, NULL, APR_HOOK_MIDDLE);
 ```
 
 # Raw body processing:
-
-mod_parp implements a function to access the raw body data of a HTTP POST request. Specify the raw content type handler using the "PARP_BodyData <type>" directive.
+mod_parp implements a function to access the raw body data of a HTTP POST request. Specify the raw content type handler using the _PARP_BodyData &lt;type&gt;" directive.
 
 ```
 # Enable processing of other "raw" data types
-PARP_BodyData            text/plain text/xml text/html
-SetEnvIf   Content-Type  text/plain       parp
-SetEnvIf   Content-Type  text/xml         parp
-SetEnvIf   Content-Type  text/html        parp
+PARP_BodyData text/plain text/xml text/html
+SetEnvIf Content-Type  text/plain  parp
+SetEnvIf Content-Type  text/xml    parp
+SetEnvIf Content-Type  text/html   parp
 ```
 
-You may enable raw body processing for any content type using "*/*" for its type.
-
-Sample code to access the raw body data:
+You may enable raw body processing for any content type using "*/*" for its type. Sample code to access the raw body data:
 
 ```
 // (1) You may use the following forward declaration if not including mod_parp.h 
@@ -126,7 +121,6 @@ static int parp_appl_handler(request_rec * r) {
 ```
 
 # Parameter modification
-
 mod_parp allows to modify query and body parameters. With the parp modify_hook an array is passed where the values can be modified or deleted. The array contains elements with the following structure:
 
 ```
@@ -139,10 +133,8 @@ parp_entry_t:
 
 Sample code to modify the parameters is available in the following file: mod_parp_appl.c.
 
-You may also remove parameters from the request by adding the name of the parameter to remove to the request notes variable PARP_DELETE_PARAM.
-
-For example:
+You may also remove parameters from the request by adding the name of the parameter to remove to the request notes variable _PARP_DELETE_PARAM_. For example like following:
 
 ```
-  apr_table_add(r->notes, "PARP_DELETE_PARAM", "special");
+apr_table_add(r->notes, "PARP_DELETE_PARAM", "special");
 ```
