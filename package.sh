@@ -13,15 +13,11 @@
 # See http://parp.sourceforge.net/ for further details about mod_parp.
 #
 
-TOP=`pwd`
 VERSION=`grep "char g_revision" httpd_src/modules/parp/mod_parp.c | awk '{print $6}' | awk -F'"' '{print $2}'`
 
-TAGV=`echo $VERSION | awk -F'.' '{print "REL_" $1 "_" $2}'`
-echo "check release tag $TAGV ..."
-if [ "`cvs -q diff -r $TAGV 2>&1`" = "" ]; then
-  echo ok
-else
-  echo "FAILED, cvs tag $TAGV not set for all files"
+echo "check release tag $VERSION ..."
+if [ "`git tag | grep $VERSION 2>&1`" = "" ]; then
+  echo "FAILED, tag $VERSION not found"
   exit 1
 fi
 if [ `grep -c "Version $VERSION" doc/CHANGES.txt` -eq 0 ]; then
